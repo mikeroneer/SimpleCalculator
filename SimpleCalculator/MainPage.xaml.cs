@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.ViewManagement;
@@ -22,24 +23,28 @@ namespace SimpleCalculator
     /// </summary>
     public sealed partial class MainPage : Page, INotifyPropertyChanged
     {
-		public enum Operation { Addition, Subtraction, Multiply, Divide }
+		private const string COMMA_SIGN = ".";
+		private enum Operation { Addition, Subtraction, Multiply, Divide }
 
-		private double? calculationResult;
+		private string displayedNumber;
 		private string calculationPath;
 
-		private double prevOperand = 0;
 		private Operation? operation = null;
+		private double prevOperand = 0;
+		private double memory = 0;
 
-		public double? CalculationResult
+		StringBuilder numberBuilder = new StringBuilder();
+
+		public string DisplayedNumber
 		{
 			get
 			{
-				return calculationResult;
+				return displayedNumber;
 			}
 			set
 			{
-				calculationResult = value;
-				OnPropertyChanged("CalculationResult");
+				displayedNumber = value;
+				OnPropertyChanged("DisplayedNumber");
 			}
 		}
 
@@ -64,111 +69,142 @@ namespace SimpleCalculator
 			ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
 
 			DataContext = this;
+		}		
 
-			CalculationResult = 0;
-		}
-
-		public event PropertyChangedEventHandler PropertyChanged;
-		bool isResult = false;
-		bool getNextOperand = false;
-
-		double? operand1 = null;
-		double? operand2 = null;
-
-		private void Button_Click(object sender, RoutedEventArgs e)
+		private void OnNumberClick(object sender, RoutedEventArgs e)
 		{
 			if (sender is Button)
 			{
 				var button = sender as Button;
 				string buttonContent = button.Content.ToString();
+
+				// if number already contains a comma, do nothing
+				if (buttonContent.Equals(COMMA_SIGN) && numberBuilder.ToString().Contains(COMMA_SIGN)) return;
+
+				// append current digit to number
+				numberBuilder.Append(buttonContent);
+
+				// set it in the UI
+				DisplayedNumber = numberBuilder.ToString();
+			}
+		}
+
+		private double PerformPreviousOperation(double number)
+		{
+			double result = 0;
+
+			switch(operation)
+			{
+				case Operation.Addition:
+					result = prevOperand + number;
+					break;
+
+				case Operation.Subtraction:
+					result = prevOperand - number;
+					break;
+
+				case Operation.Divide:
+					result = prevOperand / number;
+					break;
+
+				case Operation.Multiply:
+					result = prevOperand * number;
+					break;
+			}
+
+			prevOperand = result;
+			operation = null;
+			return result;
+		}
+
+		private void OnOperatorClick(object sender, RoutedEventArgs e)
+		{
+			if (sender is Button)
+			{
+				var button = sender as Button;
+				string buttonContent = button.Content.ToString();
+
 				double number;
 
-				if (Double.TryParse(button.Content.ToString(), out number))
+				if (DisplayedNumber != null && Double.TryParse(DisplayedNumber.ToString(), out number))
 				{
-					if (getNextOperand)
+					// perform the previous operation
+					if (operation != null)
 					{
-						CalculationResult = 0;
-						getNextOperand = false;
+						DisplayedNumber = PerformPreviousOperation(number).ToString();
+					}
+					else
+					{
+						prevOperand = number;
 					}
 
-					CalculationResult = CalculationResult * 10 + number;
-				}
-				else
-				{
 					switch (buttonContent)
 					{
 						case "+":
-							CalculationPath += CalculationResult + " + ";
-
-							PerformOperation();
-							operand1 = CalculationResult;
+							CalculationPath += number + " + ";
 							operation = Operation.Addition;
 							break;
 
 						case "-":
-							CalculationPath += CalculationResult + " - ";
-
-							PerformOperation();
-							operand1 = CalculationResult;
+							CalculationPath += number + " - ";
 							operation = Operation.Subtraction;
 							break;
 
 						case "/":
-							CalculationPath += CalculationResult + " / ";
-
-							PerformOperation();
-							operand1 = CalculationResult;
+							CalculationPath += number + " / ";
 							operation = Operation.Divide;
 							break;
 
 						case "x":
-							CalculationPath += CalculationResult + " x ";
-
-							PerformOperation();
-							operand1 = CalculationResult;
+							CalculationPath += number + " x ";
 							operation = Operation.Multiply;
 							break;
 
 						case "=":
-							CalculationPath = null;
-							PerformOperation();
+							CalculationPath = String.Empty;
 							break;
 					}
 
-					getNextOperand = true;
-
-
-				}
+					numberBuilder.Clear();
+				}	
 			}
 		}
 
-		private void PerformOperation()
-		{
-			switch(operation)
-			{
-				case Operation.Addition:
-					CalculationResult += operand1;
-					break;
-
-				case Operation.Subtraction:
-					CalculationResult = operand1 - CalculationResult;
-					break;
-
-				case Operation.Divide:
-					CalculationResult = operand1 / CalculationResult;
-					break;
-
-				case Operation.Multiply:
-					CalculationResult = operand1 * CalculationResult;
-					break;
-			}
-
-			operation = null;
-		}
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		private void OnPropertyChanged(string name)
 		{
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+		}
+
+		private void OnClearClick(object sender, RoutedEventArgs e)
+		{
+			// clear calculation path
+			CalculationPath = String.Empty;
+			numberBuilder.Clear();
+			DisplayedNumber = String.Empty;
+			prevOperand = 0;
+		}
+
+		private void OnMemoryClearClick(object sender, RoutedEventArgs e)
+		{
+			memory = 0;
+
+			BtnMemoryRestore.IsEnabled = false;
+			BtnMemoryClear.IsEnabled = false;
+		}
+
+		private void OnMemorySetClick(object sender, RoutedEventArgs e)
+		{
+			Double.TryParse(DisplayedNumber.ToString(), out memory);
+
+			BtnMemoryRestore.IsEnabled = true;
+			BtnMemoryClear.IsEnabled = true;
+		}
+
+		private void OnMemoryRestoreClick(object sender, RoutedEventArgs e)
+		{
+			DisplayedNumber = memory.ToString();
 		}
 	}
 }
