@@ -7,61 +7,75 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <Style TargetType="Button" x:Key="ButtonStyle">
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="FontSize" Value="24"/>
+        </Style>
+    </Page.Resources>
+
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Viewbox Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="4*"/>
+                <RowDefinition Height="10*"/>
+            </Grid.RowDefinitions>
+
+            <Viewbox Grid.Row="0"
+                     Stretch="Uniform"
+                     HorizontalAlignment="Right" >
+                <TextBlock  Text="{Binding CalculationPath}" />
+            </Viewbox>
+            
+
+            <Viewbox Stretch="Uniform" Grid.Row="1" HorizontalAlignment="Right">
+                <TextBlock Text="{Binding DisplayedNumber}" 
+                           FontWeight="Bold"/>
+            </Viewbox>
+            
+
+            <Grid x:Name="Grid_keyboard" VerticalAlignment="Stretch" Grid.Row="2">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock x:Name="tb_calculation" 
-                           Grid.Row="0" Text="{Binding CalculationPath}" HorizontalAlignment="Right" FontSize="18"/>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                <TextBlock x:Name="tb_result" 
-                           Grid.Row="1" Text="{Binding DisplayedNumber}" HorizontalAlignment="Right" FontSize="48" FontWeight="Bold"/>
+                <Button Style="{StaticResource ButtonStyle}" Content="MS" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" Click="OnMemorySetClick"/>
+                <Button Style="{StaticResource ButtonStyle}" x:Name="BtnMemoryRestore" IsEnabled="False" Content="MR" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Click="OnMemoryRestoreClick"/>
+                <Button Style="{StaticResource ButtonStyle}" x:Name="BtnMemoryClear" IsEnabled="False" Content="MC" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Stretch" Click="OnMemoryClearClick"/>
+                <Button Style="{StaticResource ButtonStyle}" Content="/" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Stretch" Click="OnOperatorClick"/>
 
-                <Grid x:Name="Grid_keyboard" VerticalAlignment="Bottom" Grid.Row="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                <Button Content="7" Style="{StaticResource ButtonStyle}" Grid.Row="1" Grid.Column="0" FontWeight="Bold" Click="OnNumberClick" />
+                <Button Content="8" Style="{StaticResource ButtonStyle}" Grid.Row="1" Grid.Column="1" FontWeight="Bold" Click="OnNumberClick"/>
+                <Button Content="9" Style="{StaticResource ButtonStyle}" Grid.Row="1" Grid.Column="2" FontWeight="Bold" Click="OnNumberClick"/>
+                <Button Content="x" Style="{StaticResource ButtonStyle}" Grid.Row="1" Grid.Column="3" Click="OnOperatorClick"/>
 
-                    <Button  Content="MS" Grid.Row="0" Grid.Column="0" HorizontalAlignment="Stretch" Click="OnMemorySetClick"/>
-                    <Button x:Name="BtnMemoryRestore" IsEnabled="False" Content="MR" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" Click="OnMemoryRestoreClick"/>
-                    <Button x:Name="BtnMemoryClear" IsEnabled="False" Content="MC" Grid.Row="0" Grid.Column="2" HorizontalAlignment="Stretch" Click="OnMemoryClearClick"/>
-                    <Button Content="/" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Stretch" Click="OnOperatorClick"/>
-                    
-                    <Button Content="7" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Stretch" Click="OnNumberClick" />
-                    <Button Content="8" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" Click="OnNumberClick"/>
-                    <Button Content="9" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" Click="OnNumberClick"/>
-                    <Button Content="x" Grid.Row="1" Grid.Column="3" HorizontalAlignment="Stretch" Click="OnOperatorClick"/>
+                <Button Content="4" Style="{StaticResource ButtonStyle}" Grid.Row="2" Grid.Column="0" FontWeight="Bold" Click="OnNumberClick"/>
+                <Button Content="5" Style="{StaticResource ButtonStyle}" Grid.Row="2" Grid.Column="1" FontWeight="Bold" Click="OnNumberClick"/>
+                <Button Content="6" Style="{StaticResource ButtonStyle}" Grid.Row="2" Grid.Column="2" FontWeight="Bold" Click="OnNumberClick"/>
+                <Button Content="-" Style="{StaticResource ButtonStyle}" Grid.Row="2" Grid.Column="3" Click="OnOperatorClick"/>
 
-                    <Button Content="4" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Stretch" Click="OnNumberClick"/>
-                    <Button Content="5" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" Click="OnNumberClick"/>
-                    <Button Content="6" Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" Click="OnNumberClick"/>
-                    <Button Content="-" Grid.Row="2" Grid.Column="3" HorizontalAlignment="Stretch" Click="OnOperatorClick"/>
+                <Button Content="1" Style="{StaticResource ButtonStyle}" Grid.Row="3" Grid.Column="0" FontWeight="Bold" Click="OnNumberClick"/>
+                <Button Content="2" Style="{StaticResource ButtonStyle}" Grid.Row="3" Grid.Column="1" FontWeight="Bold" Click="OnNumberClick"/>
+                <Button Content="3" Style="{StaticResource ButtonStyle}" Grid.Row="3" Grid.Column="2" FontWeight="Bold" Click="OnNumberClick"/>
+                <Button Content="+" Style="{StaticResource ButtonStyle}" Grid.Row="3" Grid.Column="3" Click="OnOperatorClick"/>
 
-                    <Button Content="1" Grid.Row="3" Grid.Column="0" HorizontalAlignment="Stretch" Click="OnNumberClick"/>
-                    <Button Content="2" Grid.Row="3" Grid.Column="1" HorizontalAlignment="Stretch" Click="OnNumberClick"/>
-                    <Button Content="3" Grid.Row="3" Grid.Column="2" HorizontalAlignment="Stretch" Click="OnNumberClick"/>
-                    <Button Content="+" Grid.Row="3" Grid.Column="3" HorizontalAlignment="Stretch" Click="OnOperatorClick"/>
-
-                    <Button Content="C" Grid.Row="4" Grid.Column="0" HorizontalAlignment="Stretch" Click="OnClearClick"/>
-                    <Button Content="0" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Stretch" Click="OnNumberClick"/>
-                    <Button Content="." Grid.Row="4" Grid.Column="2" HorizontalAlignment="Stretch" Click="OnNumberClick"/>
-                    <Button Content="=" Grid.Row="4" Grid.Column="3" HorizontalAlignment="Stretch" Click="OnOperatorClick"/>
-                </Grid>
+                <Button Content="C" Style="{StaticResource ButtonStyle}" Grid.Row="4" Grid.Column="0" Click="OnClearClick"/>
+                <Button Content="0" Style="{StaticResource ButtonStyle}" Grid.Row="4" Grid.Column="1" FontWeight="Bold" Click="OnNumberClick"/>
+                <Button Content="." Style="{StaticResource ButtonStyle}" Grid.Row="4" Grid.Column="2" Click="OnNumberClick"/>
+                <Button Content="=" Style="{StaticResource ButtonStyle}" Grid.Row="4" Grid.Column="3" Click="OnOperatorClick"/>
             </Grid>
-        </Viewbox>
+        </Grid>
     </Grid>
 </Page>

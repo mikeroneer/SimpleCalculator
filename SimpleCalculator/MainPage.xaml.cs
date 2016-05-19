@@ -24,7 +24,7 @@ namespace SimpleCalculator
     public sealed partial class MainPage : Page, INotifyPropertyChanged
     {
 		private const string COMMA_SIGN = ".";
-		private enum Operation { Addition, Subtraction, Multiply, Divide }
+		private enum Operation { Addition, Subtraction, Multiplication, Division }
 
 		private string displayedNumber;
 		private string calculationPath;
@@ -71,6 +71,11 @@ namespace SimpleCalculator
 			DataContext = this;
 		}		
 
+		/// <summary>
+		/// Occurs when a number on keyboard is clicked.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void OnNumberClick(object sender, RoutedEventArgs e)
 		{
 			if (sender is Button)
@@ -89,34 +94,11 @@ namespace SimpleCalculator
 			}
 		}
 
-		private double PerformPreviousOperation(double number)
-		{
-			double result = 0;
-
-			switch(operation)
-			{
-				case Operation.Addition:
-					result = prevOperand + number;
-					break;
-
-				case Operation.Subtraction:
-					result = prevOperand - number;
-					break;
-
-				case Operation.Divide:
-					result = prevOperand / number;
-					break;
-
-				case Operation.Multiply:
-					result = prevOperand * number;
-					break;
-			}
-
-			prevOperand = result;
-			operation = null;
-			return result;
-		}
-
+		/// <summary>
+		/// Occurs when an operator on keyboard is clicked.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void OnOperatorClick(object sender, RoutedEventArgs e)
 		{
 			if (sender is Button)
@@ -131,7 +113,7 @@ namespace SimpleCalculator
 					// perform the previous operation
 					if (operation != null)
 					{
-						DisplayedNumber = PerformPreviousOperation(number).ToString();
+						DisplayedNumber = String.Format("{0:0.###}", PerformPreviousOperation(number));
 					}
 					else
 					{
@@ -152,12 +134,12 @@ namespace SimpleCalculator
 
 						case "/":
 							CalculationPath += number + " / ";
-							operation = Operation.Divide;
+							operation = Operation.Division;
 							break;
 
 						case "x":
 							CalculationPath += number + " x ";
-							operation = Operation.Multiply;
+							operation = Operation.Multiplication;
 							break;
 
 						case "=":
@@ -170,13 +152,39 @@ namespace SimpleCalculator
 			}
 		}
 
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		private void OnPropertyChanged(string name)
+		private double PerformPreviousOperation(double number)
 		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+			double result = 0;
+
+			switch(operation)
+			{
+				case Operation.Addition:
+					result = prevOperand + number;
+					break;
+
+				case Operation.Subtraction:
+					result = prevOperand - number;
+					break;
+
+				case Operation.Division:
+					result = prevOperand / number;
+					break;
+
+				case Operation.Multiplication:
+					result = prevOperand * number;
+					break;
+			}
+
+			prevOperand = result;
+			operation = null;
+			return result;
 		}
 
+		/// <summary>
+		/// Occurs when clear button is clicked.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void OnClearClick(object sender, RoutedEventArgs e)
 		{
 			// clear calculation path
@@ -186,14 +194,11 @@ namespace SimpleCalculator
 			prevOperand = 0;
 		}
 
-		private void OnMemoryClearClick(object sender, RoutedEventArgs e)
-		{
-			memory = 0;
-
-			BtnMemoryRestore.IsEnabled = false;
-			BtnMemoryClear.IsEnabled = false;
-		}
-
+		/// <summary>
+		/// Occurs when memory set is clicked.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void OnMemorySetClick(object sender, RoutedEventArgs e)
 		{
 			Double.TryParse(DisplayedNumber.ToString(), out memory);
@@ -202,9 +207,34 @@ namespace SimpleCalculator
 			BtnMemoryClear.IsEnabled = true;
 		}
 
+		/// <summary>
+		/// Occurs when memory restore button is clicked.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void OnMemoryRestoreClick(object sender, RoutedEventArgs e)
 		{
 			DisplayedNumber = memory.ToString();
+		}
+
+		/// <summary>
+		/// Occurs when memory clear button is clicked.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnMemoryClearClick(object sender, RoutedEventArgs e)
+		{
+			memory = 0;
+
+			BtnMemoryRestore.IsEnabled = false;
+			BtnMemoryClear.IsEnabled = false;
+		}
+
+		public event PropertyChangedEventHandler PropertyChanged;
+
+		private void OnPropertyChanged(string name)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 		}
 	}
 }
