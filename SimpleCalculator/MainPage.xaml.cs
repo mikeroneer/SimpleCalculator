@@ -1,20 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 namespace SimpleCalculator
 {
@@ -29,7 +19,7 @@ namespace SimpleCalculator
 		private string displayedNumber;
 		private string calculationPath;
 
-		private Operation? operation = null;
+		private Operation? currentOperation = null;
 		private double prevOperand = 0;
 		private double memory = 0;
 
@@ -65,9 +55,11 @@ namespace SimpleCalculator
         {
             this.InitializeComponent();
 		
+			// set preferred window size
 			ApplicationView.PreferredLaunchViewSize = new Size(480, 800);
 			ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
 
+			// set DataContext for property-binding to this class
 			DataContext = this;
 		}		
 
@@ -110,13 +102,28 @@ namespace SimpleCalculator
 
 				if (DisplayedNumber != null && Double.TryParse(DisplayedNumber.ToString(), out number))
 				{
-					// perform the previous operation
-					if (operation != null)
+					// if there's already an operation left
+					if (currentOperation != null)
 					{
-						DisplayedNumber = String.Format("{0:0.###}", PerformPreviousOperation(number));
+						// perform previous operation
+						double? result = PerformOperation(currentOperation, prevOperand, number);
+
+						if (result != null)
+						{
+							prevOperand = (double)result;
+							currentOperation = null;
+
+							// display result in UI with optional three decimal places
+							DisplayedNumber = String.Format("{0:0.###}", result);
+						}
+						else
+						{
+							DisplayedNumber = "Invalid Operation";
+						}
 					}
 					else
 					{
+						// if there isn't any operation to perform, just save the number as previous operand
 						prevOperand = number;
 					}
 
@@ -124,22 +131,22 @@ namespace SimpleCalculator
 					{
 						case "+":
 							CalculationPath += number + " + ";
-							operation = Operation.Addition;
+							currentOperation = Operation.Addition;
 							break;
 
 						case "-":
 							CalculationPath += number + " - ";
-							operation = Operation.Subtraction;
+							currentOperation = Operation.Subtraction;
 							break;
 
 						case "/":
 							CalculationPath += number + " / ";
-							operation = Operation.Division;
+							currentOperation = Operation.Division;
 							break;
 
 						case "x":
 							CalculationPath += number + " x ";
-							operation = Operation.Multiplication;
+							currentOperation = Operation.Multiplication;
 							break;
 
 						case "=":
@@ -152,31 +159,43 @@ namespace SimpleCalculator
 			}
 		}
 
-		private double PerformPreviousOperation(double number)
+		/// <summary>
+		/// Runs an operation to the given operands.
+		/// </summary>
+		/// <param name="operation">Operation to run.</param>
+		/// <param name="leftOperand">The operand to the left of the operator.</param>
+		/// <param name="rightOperand">The operand to the right of the operator.</param>
+		/// <returns>The result of the operation. Null if operation is invalid.</returns>
+		private double? PerformOperation(Operation? operation, double leftOperand, double rightOperand)
 		{
-			double result = 0;
+			double? result = null;
 
 			switch(operation)
 			{
 				case Operation.Addition:
-					result = prevOperand + number;
+					result = leftOperand + rightOperand;
 					break;
 
 				case Operation.Subtraction:
-					result = prevOperand - number;
+					result = leftOperand - rightOperand;
 					break;
 
 				case Operation.Division:
-					result = prevOperand / number;
+					if (rightOperand == 0)
+					{
+						result = null;
+					}
+					else
+					{
+						result = leftOperand / rightOperand;
+					}
 					break;
 
 				case Operation.Multiplication:
-					result = prevOperand * number;
+					result = leftOperand * rightOperand;
 					break;
 			}
 
-			prevOperand = result;
-			operation = null;
 			return result;
 		}
 
@@ -201,10 +220,13 @@ namespace SimpleCalculator
 		/// <param name="e"></param>
 		private void OnMemorySetClick(object sender, RoutedEventArgs e)
 		{
-			Double.TryParse(DisplayedNumber.ToString(), out memory);
+			if (!String.IsNullOrEmpty(DisplayedNumber))
+			{
+				Double.TryParse(DisplayedNumber, out memory);
 
-			BtnMemoryRestore.IsEnabled = true;
-			BtnMemoryClear.IsEnabled = true;
+				BtnMemoryRestore.IsEnabled = true;
+				BtnMemoryClear.IsEnabled = true;
+			}
 		}
 
 		/// <summary>

@@ -26,16 +26,16 @@
             <Viewbox Grid.Row="0"
                      Stretch="Uniform"
                      HorizontalAlignment="Right" >
-                <TextBlock  Text="{Binding CalculationPath}" />
+                <TextBlock Padding="10" 
+                           Text="{Binding CalculationPath}" />
             </Viewbox>
             
 
             <Viewbox Stretch="Uniform" Grid.Row="1" HorizontalAlignment="Right">
                 <TextBlock Text="{Binding DisplayedNumber}" 
-                           FontWeight="Bold"/>
+                           FontWeight="Bold" />
             </Viewbox>
             
-
             <Grid x:Name="Grid_keyboard" VerticalAlignment="Stretch" Grid.Row="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
